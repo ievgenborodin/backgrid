@@ -1,0 +1,121 @@
+#divPickerHolder{
+    position: absolute;
+    width: 100%;
+    top: 2em;
+}
+#divPicker{
+    width: 257px;
+    border: 4px solid #333;
+    border-radius: 4px;
+    background: #333;
+    margin: 1em auto;
+    z-index: 100;
+    height: 312px;
+}
+#divPickerBG{
+    height: 256px;
+    float: left;
+    position: relative;
+}
+#pickerBG{
+    height: 100%;
+    width: 224px;
+    background-color: #ff0000;
+}
+#divPickerColor{
+    position: relative;
+    float: right;
+}
+#pickerColor{
+    height: 256px;
+}
+.clear{
+    clear: both;
+}
+#divPickerControls{
+    width:253px;
+    height: 48px;
+}
+
+#divPickerControls > .buttons{
+    float: left;
+}
+
+#pointerBG{
+    margin-top: -4px;
+    margin-left: -4px;
+    position: absolute;
+    top: 0px;
+    left: 255px;
+    width: 8px;
+    height: 8px;
+    border-color: white;
+    border-width: 2px; 
+    border-style: solid;
+    border-radius: 4px;
+}
+
+#pointerColor{
+    margin-top: -1px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 1px;
+    border-color: #eee;
+    border-width: 2px; 
+    border-style: solid;
+}
+
+.buttons {
+    padding: 0.5em 0.6em;
+    color: white;
+    height: 100%;
+    position: relative;
+}
+
+.buttons > span{
+    display: block;
+}
+
+.btn-default{
+    background: #eee;
+    margin-right: 0;
+}
+
+.colorHash{
+    color: black;
+    width: 5em;
+    text-align: center;
+}
+.btn-default:hover{
+    background: lightblue;
+}
+
+#colorSpot{
+    height: 100%;
+    width: 60px;
+    background: #000000;
+    border:1px solid #ccc;
+    display: block;
+}
+#color{
+    height: 2em;
+}
+#color-span{  
+    background-color: #000000;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #777;
+    border-radius: 2px;
+    }
+#greyIsh{
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    background: #aaa;
+    opacity: 0.5;
+}
