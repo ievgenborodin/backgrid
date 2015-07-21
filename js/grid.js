@@ -50,6 +50,7 @@ pHolder.css('display', 'none');
 
 /* ///////  LINE CHECK   /////////// */
   checkLines = function(){
+      
     var len = cols * rows,
         cell = layers[layers.length-1].cells, 
         i0=undefined,
