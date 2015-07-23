@@ -1,3 +1,4 @@
+var layers = [];
 $(document).ready(function(){
 var cols, rows, colSize, cells, color,
     field = $('#field'),
@@ -8,12 +9,33 @@ var cols, rows, colSize, cells, color,
     context = canvas[0].getContext('2d'),
     lineWidth = 1, 
     amp = 4,
+    tool,
+    activeTool = $('#activeTool'),
     lineRound = true,
     save = $('#save'),
     imgInfo = $('#imgInfo'),
-    sizeVal = $('#sizeLabelVal'),
-    ampVal = $('#ampLabelVal'),
+    sizeVal = $('#sizeLabelVal'), sizing = false,
+    ampVal = $('#ampLabelVal'), amplify = false,
     addLayerBtn = $('#addLayer'),
+    inputAmp = $('#line-amplifier'),    
+    inputSize = $('#line-size'),
+    actives = 0,
+    help = $('#help'),
+    Layer = {
+      params: function(){
+        this.cells = [];
+        this.lines = [];
+        this.color = "#000000";
+        return this;
+      }
+    },
+    Line = function(i1, i2, color){
+      return {
+        i1: i1,
+        i2: i2,
+        color: color
+      }
+    },
     pHolder = $('#divPickerHolder'),
     pGreyIsh = $('#greyIsh'),
     doc = $(document),
@@ -35,45 +57,41 @@ window.mousedown = 0;
 pHolder.css('display', 'none');  
     
 /*  /////   GET X and Y   ///// */
-      getXY = function(index){
+  getXY = function(index){
         var x = index % cols; 
         return { x: x,
-                 y: (index - x) / rows
+                 y: (index - x) / cols
         }
       };
+   
+/*  ////    GET Index   ///// */
+  getIndex = function(x, y){
+    return rows * y + x;
+  };    
 
     
-/*  ////    GET Index   ///// */
-      getIndex = function(x, y){
-        return rows * y + x;
-      };    
-
 /* ///////  LINE CHECK   /////////// */
-  checkLines = function(){
+  checkLines = function(cells, a){
       
-    var len = cols * rows,
-        cell = layers[layers.length-1].cells, 
+    var layer = layers[layers.length-1],
         i0=undefined,
         max1=max2=max3=max4=0;
-      
-    for(var i=0, l=len-1; i<l; i++){
-      if (!cell[i]) continue;
-      
+    for(var i=0, l=cells.length; i<l-1; i++){
       if (i0 == undefined){
-          i0 = i;    
+          i0 = i; 
       } else {
-        switch (i-i0){
+        switch (cells[i]-cells[i0]){
           case (cols+1):
-            max1 = (i > max1) ? lineCheck(cell, i0, i, len, cols+1) : max1;  
+            max1 = (i > max1) ? lineCheck(cells, i0, i, l, cols+1) : max1;   
             break;
           case (cols-1):
-            max2 = (i > max2) ? lineCheck(cell, i0, i, len, cols-1) : max2;
+            max2 = (i > max2) ? lineCheck(cells, i0, i, l, cols-1) : max2;    
             break;
           case cols: 
-            max3 = (i > max3) ? lineCheck(cell, i0, i, len, cols) : max3;
+            max3 = (i > max3) ? lineCheck(cells, i0, i, l, cols) : max3;           
             break;
           case 1:
-            max4 = (i > max4) ? lineCheck(cell, i0, i, len, 1) : max4;
+            max4 = (i > max4) ? lineCheck(cells, i0, i, l, 1) : max4;     
             break;
           default:
             i0 = undefined; 
@@ -82,71 +100,150 @@ pHolder.css('display', 'none');
       }
     }  
   };
-  
-/* ////  line check ///// */
-  function lineCheck(cell, i0, i, len, value){
-    var lineLength = 2, lineXN = i,
-        loc0 = getXY(i0), loc, 
+  function lineCheck(cells, i0, i, len, value){
+    var lineLength = 2, lasti = i,  
         a = ((amp>0) ? amp : 1) * lineWidth,
         res = 0;
     for(var j=i+1; j<len; j++){
-      if (!cell[j]) continue;
-      if (j - lineXN == value){
-          lineXN = j;
+      if (cells[j] - cells[lasti] == value){
+          lasti = j;
           lineLength++;
       }
     }
     if (lineLength > 2) {
-            loc = getXY(lineXN);
-            context.beginPath();
-            context.moveTo(loc0.x * a, loc0.y * a);
-            context.lineTo(loc.x * a, loc.y * a);
-            context.stroke();
-            console.log("A["+loc0.x*a + "; "+ loc0.y*a + "], B["+ loc.x * a + "; " + loc.y * a + "]");
-            res = j;
-        }
+        drawLine(a, cells[i0], cells[lasti]);
+        res = j;
+    }
     return res;
-  };
+  };   
+
     
+/* /////    RENDER PREVIEW   ///// */
+  renderPreview = function(){      
+    var cells = layers[layers.length-1].cells,
+        a, tempIndex;
     
-/* /////////    ADD LAYER   /////////*/
-  addLayer = function(){
-    //layers[layers.length-1].color = hex;
-        //$('.f-col').removeClass('active').css('background-color', '#ffffff');
-  };
+    /* index passed? => already exist? remove : add */  
+    if (arguments.length){
+      tempIndex = cells.indexOf(arguments[0]);
+      if (tempIndex > -1) cells.splice(tempIndex, 1);
+      else cells.push(arguments[0]);
+    } 
     
+    /* clear preview screen + set basic params */
+    context.clearRect(0, 0, canvas.width(), canvas.height());
+    a = ((amp>0) ? amp : 1) * lineWidth;
+    context.lineWidth = lineWidth;
     
-/* render preview */
-    renderPreview = function(){
-      context.lineWidth = lineWidth;
-      context.strokeStyle = context.fillStyle = "#" + hex;
-      context.clearRect(0, 0, canvas.width(), canvas.height());
-      var cell = layers[layers.length-1].cells,
-          tmpx, tmpy, actives=0,
-          a = ((amp>0) ? amp : 1) * lineWidth;    
-        
-      for(var i=0, len = cols * rows; i < len; i++){ 
-        loc = getXY(i);
-        tmpx = loc.x * a;
-        tmpy = loc.y * a;
-        if (cell[i]) {
-          actives++;
-          if (!lineRound) {
-              
-                
-          } else {
-            context.fillRect(tmpx, tmpy, lineWidth, lineWidth);
-              //console.log("["+i+"]x: "+loc.x*a + ", y: "+loc.y*a);
-          }
-        } 
-          
+    /* if more than 1 layer => draw them first */  
+    if (layers.length > 1) 
+      drawLayers(layers, a);  
+      
+    /* check tool value => process data */    
+    switch (tool){
+      case "dot":
+      case "autoline":
+        dotTool(cells, a);  
+        break;
+      case "line":
+        lineTool(cells, a);
+        break;
+    }
+  };    
+    
+/* ///   DRAW  LAYERS  //// */    
+ drawLayers = function(layers, a){
+   var loc1, tmpx, tmpy;
+   layers.forEach(function(l){
+    
+    context.fillStyle = l.color;
+    if (l.cells.length)
+      for (var i=0; i<l.cells.length; i++){
+        loc1 = getXY(l.cells[i]);
+        tmpx = (loc1.x * a) - lineWidth/2;
+        tmpy = (loc1.y * a) - lineWidth/2;
+        context.fillRect(tmpx, tmpy, lineWidth, lineWidth);
+      };
+    if (l.lines.length)
+      for (var i=0; i<l.lines.length; i++){
+        context.strokeStyle = "#" + l.lines[i].color;
+        drawLine(a, l.lines[i].i1, l.lines[i].i2);
       }
-      if (actives > 2) checkLines(); 
-    };    
+  }); 
+ }    
+    
+/* /////     DOT TOOL   //// */
+ dotTool = function(cells, a){
+  var tmpx, tmpy, actives=0;     
+  layers[layers.length-1].color = "#" + hex;    
+     
+  /* sort cells */
+  cells = cells.sort();
+     
+  for(var i=0; i < cells.length; i++){ 
+    loc = getXY(cells[i]);
+    tmpx = (loc.x * a) - lineWidth/2;
+    tmpy = (loc.y * a) - lineWidth/2;
+    context.fillRect(tmpx, tmpy, lineWidth, lineWidth);
+  }
+  if (cells.length > 2 && tool==="autoline") checkLines(cells, a);   
+ };    
+    
+    
+/* draw a line */
+function drawLine(a, i1, i2){
+  loc1 = getXY(i1);
+  loc2 = getXY(i2);
+  context.beginPath();
+  context.moveTo(loc1.x * a, loc1.y * a);
+  context.lineTo(loc2.x * a, loc2.y * a);
+  context.stroke();
+};
+    
+/* line tool */
+ lineTool = function(cells, a){
+  var fCol = $('.f-col'),
+      layer = layers[layers.length-1],
+      loc1, loc2;  
+     
+  if (layer.lines.length > 0){
+    for (var i=0, l=layer.lines; i<l.length; i++){
+      context.strokeStyle = context.fillStyle = "#" + l[i].color;
+      drawLine(a, l[i].i1, l[i].i2);
+    }
+  };
+   
+  context.strokeStyle = context.fillStyle = "#" + hex;
+  switch (cells.length){
+    case 0: break;
+    case 1: 
+      layer.i1 = cells[0]; 
+      break;
+    case 2: 
+      layer.i1 = cells[0]; 
+      layer.i2 = cells[1]; 
+      drawLine(a, layer.i1, layer.i2);  
+      break;
+    default: 
+      layer.lines.push(Line(layer.i1, layer.i2, hex));
+      drawLine(a, layer.i1, layer.i2);
+      fCol.removeClass('active').css('background-color', '#ffffff');        
+      cells.length = 0;
+   }     
+ };        
+    
     
 /* RENDER grid */
     renderGrid = function(){
       var html = '', i = 0;
+      inputAmp.append($('<option></option>').val(0).html(0));
+      for (k=1;k<=32;k++){
+        inputAmp.append($('<option></option>').val(k).html(k));
+        inputSize.append($('<option></option>').val(k).html(k));
+      }  
+      inputAmp.val(3);
+      inputSize.val(2);
+
       for (var r=0; r<rows; r++){
         html+='<div class="row">';  
         for(var c=0; c<cols; c++){
@@ -157,11 +254,13 @@ pHolder.css('display', 'none');
       field.html(html);
       cells = $('.f-col'); 
       cells.width(colSize); 
-      cells.height(cells.width()+'px');
+      cells.height(cells.width()+'px'); 
+      layers.length = 0;
       layers[0] = Object.create(Layer).params();
     };
     
     
+
 /* reset Output image */
     resetOutput = function(){
         var tmpAmp, tmpW, tmpH;
@@ -169,74 +268,54 @@ pHolder.css('display', 'none');
         amp = $('#line-amplifier').val();
         lineWidth = $('#line-size').val();
         tmpAmp = (amp > 0) ? lineWidth * amp : lineWidth;
-        tmpW = ((cols - 1) * tmpAmp) + +lineWidth;
-        tmpH = ((rows - 1) * tmpAmp) + +lineWidth;
+        tmpW = ((cols - 1) * tmpAmp);
+        tmpH = ((rows - 1) * tmpAmp); 
         
         canvas.attr('width', tmpW +'px').attr('height', tmpH + 'px');
-        canvas.height(canvas.width() / (cols / rows));   
+        canvas.height(canvas.width() / cols * rows);        
         imgInfo.html("img " + canvas.attr('width') + " * " + canvas.attr('height') + "");
-        sizeVal.html("size[" + lineWidth + "]");
-        ampVal.html("amp[" + amp + "]");
+        //sizeVal.html("size[" + lineWidth + "]");
+        //ampVal.html("amp[" + amp + "]");
         
         renderPreview();
     };
 
     
-/* reset everything */
-    resetBtn.on('click', function(){
-        cols = +$('#cols').val();
-        rows = +$('#rows').val();
-        colSize = (100 / cols).toPrecision(7) + '%';
-        renderGrid();
-        /* toggle active on click */
-        cells.on('click', function(e){
-            var thisColor, thee = $(this);
-            thee.toggleClass('active');
-            thisColor = (thee.hasClass('active')) ? hex : "ffffff"; 
-            thee.css('background-color', '#'+thisColor);
-            layers[layers.length-1].cells[thee.data('i')] =  thee.hasClass('active');
-            renderPreview();
-        });
-        
-        resetOutput();
-    });
-
 /* on change amplitude value */
-$('#line-amplifier').change(resetOutput);    
+  $('#line-amplifier').change(resetOutput);    
     
 /* on change lineSize value */    
-$('#line-size').change(resetOutput);        
-
-/* /////    on click Add Layer  ////// */
-  addLayerBtn.on('click', function(){
-    layers[layers.length-1].color = hex;  
-    console.log(layers[layers.length-1]);
-  });
+  $('#line-size').change(resetOutput);             
     
-/* set default grid 3x3 */
-    resetBtn.click();
-
+/* set instructions on when active tool is changed */    
+ activeTool.change(function(){
+    var thee = $(this).val();
+    switch (thee){
+      case "line":
+        help.html("<span>[ line mode ]</span><br><span>* Click on one cell - to set start point, on second - end point, third to save the line.</span><br><span>* Start and end points can be changed before the click on other cells.</span>");    
+        break;
+      case "dot":
+        help.html("<span>[ dot mode ]</span><br><span>* Every cell toggles. Color change affects whole layer.</span><br><span>* To save changes / layer press [save].</span>");      
+        break;
+      case "autoline":
+        help.html("<span>[ auto-line mode ]</span><br><span>* Works like [dot] mode. For more than 2 active cells starts searching for lines. </span><br><span>* Not finished yet. At this moment extends one line at a time.</span>");  
+        break;
+    }
+ });    
     
-/*	/////    WINDOW TO OBJECT	///// */
-    wtc = function(obj, x, y) {
-        var bbox = obj.getBoundingClientRect();
-        return { x: x - bbox.left * (obj.width / bbox.width),
-                y: y - bbox.top * (obj.height / bbox.height)
-        };
-    };
+/* button toggle */
+ function buttonClick(){
+    var thisColor, thee = $(this), layer = layers[layers.length-1];
+    thee.toggleClass('active');
+    thisColor = (thee.hasClass('active')) ? hex : "ffffff"; 
+    thee.css('background-color', '#'+thisColor);
+    tool = activeTool.val(); 
+    renderPreview(thee.data('i')); // clicked index
+ };
 
-    /* /// Save button  /// */    
-    save.on('click',function(){
-        $.post("html/save.php", {
-            data: canvas[0].toDataURL("image/png")
-        }, function (file) {
-            window.location.href =  "html/download.php?path=" + file
-        });
-    });
-    
-    /* return color */
-    outData = function(H, S, V, R, G, B, Hex){
-	h = H;   s = S;   v = V; 
+/* return color */
+outData = function(H, S, V, R, G, B, Hex){
+    h = H;   s = S;   v = V; 
     r = R;   g = G;   b = B; 
     hex = Hex;  
     switch (arguments.length){
@@ -260,7 +339,77 @@ $('#line-size').change(resetOutput);
     cursorH.css({top: locHue.y+'px'});
     cursorSV.css('top', locSaVa.y + 'px').css('left', locSaVa.x + 'px');  
     color = "#"+hex;
+};        
+
+/* reset everything */
+    resetBtn.on('click', function(){
+        locHue.x = 0;
+        locHue.y = 0; 
+        locSaVa.x = 0; 
+        locSaVa.y = imageSVheight; 
+        outData(0, 100, 0, 0, 0, 0, "000000");
+        cols = +$('#cols').val();
+        rows = +$('#rows').val();
+        colSize = (100 / cols).toPrecision(7) + '%';
+        renderGrid();
+        cells.on('click', buttonClick);
+        resetOutput();
+    });    
+
+/*    
+inputAmp.on('touchstart mousedown', function() { 
+  amplify = true;
+});
+inputAmp.on('touchmove mousemove', function() { 
+  if (amplify){ ampVal.html("amp[" + inputAmp.val() + "]");        
+}
+});
+inputAmp.on('touchend mouseend', function(e) { 
+  amplify = false;
+});
+    
+inputSize.on('touchstart mousedown', function() { 
+  sizing = true;
+});
+inputSize.on('touchmove mousemove', function() { 
+  if (sizing){ sizeVal.html("size[" + inputSize.val() + "]");        
+}
+});
+inputSize.on('touchend mouseend', function(e) { 
+  sizing = false;
+});    
+*/ 
+    
+/* /////////    ADD LAYER   /////////*/
+addLayer = function(){
+  layers[layers.length-1].color = "#" + hex;
+  $('.f-col').removeClass('active').css('background-color', '#ffffff'); 
+  layers.push(Object.create(Layer).params());
 };    
+    
+    
+/* /////    on click Add Layer  ////// */
+addLayerBtn.on('click', addLayer);
+    
+/* set default grid 3x3 */
+resetBtn.click();
+    
+/*	/////    WINDOW TO OBJECT	///// */
+wtc = function(obj, x, y) {
+    var bbox = obj.getBoundingClientRect();
+    return { x: x - bbox.left * (obj.width / bbox.width),
+            y: y - bbox.top * (obj.height / bbox.height)
+    };
+};
+
+/* /// Save button  /// */    
+save.on('click',function(){
+    $.post("html/save.php", {
+        data: canvas[0].toDataURL("image/png")
+    }, function (file) {
+        window.location.href =  "html/download.php?path=" + file
+    });
+});
     
 /* ///   HSV - TO - RGB      //// */
     hsv2rgb = function(h, s, v){
@@ -298,67 +447,65 @@ $('#line-size').change(resetOutput);
         }
     };
 
-    /*  /////     RGB - TO - HSV     /////  */    
-    rgb2hvs = function(r, g, b, hex){
-        var h, s, v, m, M, c, hy, sy, vx;
-        r /= 255;
-        g /= 255;
-        b /= 255;
-        M = Math.max(r, g, b);
-        m = Math.min(r, g, b);
-        c = M - m;
-        if (c == 0) h = 0;
-        else if (M == r) 
-            h = (((g - b) / c) % 6) * 60;
-        else if (M == g) 
-            h = ((b - r) / c + 2) * 60;
-        else 
-            h = ((r - g) / c + 4) * 60;
-        if (h < 0) 
-            h += 360;
-        v = M * 100;
-        s = (!M) ? 0 : (c / M * 100);
-
-        return {
-            h: h.toFixed(0),
-            s: s.toFixed(0),
-            v: v.toFixed(0),
-            hy: imageHheight - Math.floor(imageHheight * h / 360),
-            sy: imageSVheight - Math.floor(imageSVheight * s / 100),
-            vx: Math.floor(imageSVwidth * v / 100)
-        }
-    };
-    
-    
+/*  /////     RGB - TO - HSV     /////  */    
+rgb2hvs = function(r, g, b, hex){
+    var h, s, v, m, M, c, hy, sy, vx;
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    M = Math.max(r, g, b);
+    m = Math.min(r, g, b);
+    c = M - m;
+    if (c == 0) h = 0;
+    else if (M == r) 
+        h = (((g - b) / c) % 6) * 60;
+    else if (M == g) 
+        h = ((b - r) / c + 2) * 60;
+    else 
+        h = ((r - g) / c + 4) * 60;
+    if (h < 0) 
+        h += 360;
+    v = M * 100;
+    s = (!M) ? 0 : (c / M * 100);
+    return {
+        h: h.toFixed(0),
+        s: s.toFixed(0),
+        v: v.toFixed(0),
+        hy: imageHheight - Math.floor(imageHheight * h / 360),
+        sy: imageSVheight - Math.floor(imageSVheight * s / 100),
+        vx: Math.floor(imageSVwidth * v / 100)
+    }
+};
+              
     /*  /////   DOWN     ////// */ 
-    imageH.on('touchstart', function(e) { 
+imageH.on('touchstart', function(e) { 
         e.preventDefault(e); 
         locHue = wtc(imageH[0],e.originalEvent.touches[0].pageX,e.originalEvent.touches[0].pageY); 
         downHue();
      });
-     imageH.on('mousedown', function(e) { 	
+imageH.on('mousedown', function(e) { 	
         e.preventDefault(e); 
         locHue = wtc(imageH[0],e.clientX,e.clientY); 
         downHue();
      });
-    downHue = function(){
+downHue = function(){
         h = Math.floor((imageHheight - locHue.y) / imageHheight * 360);
         h = (h < 0) ? 0 : (h>=360) ? 359 : h;
         temp = hsv2rgb(h,s,v);
         outData(h, s, v, temp.r, temp.g, temp.b, temp.hex, locHue.y);
     }
 
-    imageSV.on('touchstart', function(e) { 
+imageSV.on('touchstart', function(e) { 
         e.preventDefault(e); 
         locSaVa = wtc(imageSV[0],e.originalEvent.touches[0].pageX,e.originalEvent.touches[0].pageY); 
         downSaVa();
      });
-    imageSV.on('mousedown', function(e) { 	
+imageSV.on('mousedown', function(e) { 	
         e.preventDefault(e); 
         locSaVa = wtc(imageSV[0],e.clientX,e.clientY); 
         downSaVa();
      });
-    downSaVa = function(){
+downSaVa = function(){
         s = Math.floor((imageSVheight - locSaVa.y) / imageSVheight * 100);
         v = Math.floor(locSaVa.x / imageSVwidth * 100);
         s = (s < 0) ? 0 : (s>100) ? 100 : s;
@@ -368,10 +515,9 @@ $('#line-size').change(resetOutput);
     }
 
 
-
-     /*  ///////   MOVE     /////// */ 
-    imageH.on('touchmove', function(e) { 
-        e.preventDefault(e); 
+ /*  ///////   MOVE     /////// */ 
+imageH.on('touchmove', function(e) { 
+    e.preventDefault(e); 
         locHue = wtc(imageH[0],e.originalEvent.touches[0].pageX,e.originalEvent.touches[0].pageY); 
         moveHue();
      });
@@ -457,5 +603,6 @@ $('#line-size').change(resetOutput);
         pHolder.css('display', 'none');
         renderPreview();
         $('.active').css('background-color', '#' + hex);
+        context.fillStyle = "#" + hex;
     });  
 });

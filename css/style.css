@@ -15,20 +15,23 @@ body{
     position: relative;
 }
 #header{
-    position: relative;
     background: #584c2b;
-    margin-bottom: 1em;
-    padding-left: 0.5em;
     border-radius: 3px;
-    padding-bottom: 0.7em;
     margin-bottom: 1em;
+    padding-bottom: 0.7em;
+    padding-left: 0.5em;
 }
 #title{
     font-family: 'Gotham';
     color: #fff;
     font-weight: 500;
     display: inline-block;
+    padding-left: 0.5em;
 }
+p{
+    padding-left: 0.5em;
+}
+
 #description{
     margin-left: 0.5em;
     font-size: 0.9em;
@@ -45,7 +48,6 @@ body{
     margin-top: 1em;
 }
 #field{
-    padding-left: 25px;
     cursor: pointer; 
     border: 1px solid #eee; 
     border-radius: 3px;
@@ -92,33 +94,104 @@ body{
     background-color: beige;
     color: #666;
     padding: 15px;
-    height: 80px;
+    padding-left: -15px;
+    margin-left: 5px;
 }
+
+.block-lable{
+    background-color: #584c2b;
+    border-radius: 3px;
+    height: 20px;
+    color: #eee;
+    text-align: center;
+    margin-bottom: 0.5em;
+}
+.block-itself{
+    background-color: black;
+    height: 100%;
+}
+
+#right-side{
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
 
 /*  ////////////    MEDIAS      /////////// */
 @media(min-width: 180px){ 
     #title{
         font-size: 2em;
     }
+    .marl{
+        margin-left: 5px;
+    }
+    #tool-col{
+        padding-left: 0;
+    }
+    #imgInfo{
+        font-size: 0.8em;
+    }
+    #footer span{
+        font-size: 0.8em;
+    }
 }
-
-@media(min-width: 400px){ 
-
+@media(min-width: 525px){ 
+    #tool-col{
+        padding-left: 10px;
+    }
+    #imgInfo{
+        font-size: 1em;
+    }
+    #field{
+        padding-left: 4em;
+        padding-right: 4em;
+    }
 }
-
 @media(min-width: 630px){ 
     #title{
         font-size: 3em;
     }
+    #tool-col{
+        padding-left: 15px;
+    }
 }
-
+@media(min-width: 668px){ 
+    #tool-col{
+        padding-left: 25px;
+    }    
+    #footer span{
+        font-size: 1em;
+    }
+}
 @media(min-width: 768px){ 
     #header{
         margin-bottom: 1.7em;
     }
+    #field{
+        padding-left: 15px;
+        padding-right: 15px;
+    }
     .save{
         padding-left: 2em;
         padding-right: 2em;
+    }
+    .marl{
+        margin-left: 0;
+    }
+    #tool-col{
+        padding-left: 10px;
+    }
+    #footer span{
+        font-size: 0.9em;
+    }
+}
+
+@media(min-width: 991px){ 
+    #footer span{
+        font-size: 1em;
+    }
+    #tool-col{
+        padding-left: 15px;
     }
 }
 
