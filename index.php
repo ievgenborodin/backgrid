@@ -5,10 +5,10 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
   <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
   <link rel="shortcut icon" href="css/grid.ico" />
-  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/picker.css">
-  <script src="../js/jquery.js"></script> 
+  <script src="js/jquery.js"></script> 
   <script src="js/grid.js"></script>    
 </head>
 <body>
