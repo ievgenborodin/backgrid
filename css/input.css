@@ -1,0 +1,41 @@
+#input-wrap{
+      display: none;
+      position: absolute;
+      text-align: center;
+      height: auto;
+      color: #fff;
+      z-index: 999;
+  }
+  #input{
+      position: relative;
+      display: table;
+      width: 100%;
+      padding-bottom: .3em;
+  }
+  .bcol, #input-backspace{   
+      float: left;
+      background-color: #222;
+  }
+  .mtext{
+      font-size: 16px;
+      display: inline-block;
+      vertical-align: middle;
+  }
+  #input-done{
+      position: absolute;
+      font-size: 24px;
+      right: -30px;
+      top: .2em;
+      width: 30px;
+      height: 30px;
+      color: #5dde79;
+      background-color: #222;
+  }
+  #input-done:hover, .bcol:hover, 
+  #input-backspace:hover, #speedNumber:hover, #dotsNumber:hover{
+      cursor: pointer;
+  }
+  .bcol, 
+  #input-done, #input-backspace{
+      border-radius: 2px;
+  }

@@ -1,47 +1,44 @@
-#divPickerHolder{
+#darkness{
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: #aaa;
+    opacity: 0.5;
+    z-index: 9;
+}
+#picker-wrap{
+    display: none;
     position: absolute;
     width: 100%;
     top: 2em;
+    z-index: 10;
 }
-#divPicker{
+
+#picker{
+    position: relative;
     width: 257px;
     border: 4px solid #333;
     border-radius: 4px;
     background: #333;
     margin: 1em auto;
     z-index: 100;
-    height: 312px;
+    height: 309px;
 }
-#divPickerBG{
+
+#picker-sv-wrap{
     height: 256px;
     float: left;
     position: relative;
 }
-#pickerBG{
-    height: 100%;
+#picker-sv{
+    height: 256px;
     width: 224px;
     background-color: #ff0000;
 }
-#divPickerColor{
-    position: relative;
-    float: right;
-}
-#pickerColor{
-    height: 256px;
-}
-.clear{
-    clear: both;
-}
-#divPickerControls{
-    width:253px;
-    height: 48px;
-}
-
-#divPickerControls > .buttons{
-    float: left;
-}
-
-#pointerBG{
+#picker-sv-pointer{
     margin-top: -4px;
     margin-left: -4px;
     position: absolute;
@@ -55,7 +52,14 @@
     border-radius: 4px;
 }
 
-#pointerColor{
+#picker-h-wrap{
+    position: relative;
+    float: right;
+}
+#picker-h{
+    height: 256px;
+}
+#picker-h-pointer{
     margin-top: -1px;
     position: absolute;
     top: 0px;
@@ -67,55 +71,57 @@
     border-style: solid;
 }
 
-.buttons {
-    padding: 0.5em 0.6em;
-    color: white;
-    height: 100%;
+#picker-controls-wrap{
     position: relative;
+    clear:both;
+    width:100%;
+    height: 48px;
+    padding-top: 6px;
+    padding-bottom: 6px;
 }
-
-.buttons > span{
-    display: block;
+#picker-controls-wrap > div{
+    float: left;
 }
-
-.btn-default{
+#picker-ok{
+    margin-right: 6px;
+    margin-left: 2px;
     background: #eee;
-    margin-right: 0;
+    min-width: 60px;
+    height: 100%;
 }
-
-.colorHash{
-    color: black;
-    width: 5em;
-    text-align: center;
-}
-.btn-default:hover{
+#picker-ok:hover{
     background: lightblue;
 }
-
-#colorSpot{
+#picker-preview{
     height: 100%;
-    width: 60px;
-    background: #000000;
+    width: 65px;
+    margin-right: 6px;
+    background: red;
     border:1px solid #ccc;
     display: block;
-}
-#color{
-    height: 2em;
-}
-#color-span{  
-    background-color: #000000;
-    display: block;
-    width: 100%;
+} 
+#picker-hash-wrap{
+    position: relative;
+    width: 108px;
+    margin-right: 2px;
     height: 100%;
-    border: 1px solid #777;
-    border-radius: 2px;
-    }
-#greyIsh{
-    display: none;
-    position: absolute;
-    width: 100%;
+    font-size: 1.2em;
+    line-height: 2.2;
+    color: #fff;
+}
+#picker-hash{
+    vertical-align: middle;
+    display: inline-block;
+    background-color: #fff;
+    border-radius: 3px;
+    color: #222;
+    min-width: 85px;
+    margin-left: 3px;
+    margin-right: 3px;
     height: 100%;
-    top: 0;
-    background: #aaa;
-    opacity: 0.5;
+    text-align: center;
+}
+#picker-hash:hover, 
+#picker-h:hover, #picker-sv:hover{
+    cursor: pointer;
 }

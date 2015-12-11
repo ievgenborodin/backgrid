@@ -1,22 +1,24 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>Grid Editor</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
   <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
-  <link rel="shortcut icon" href="css/grid.ico" />
+  <!--<link rel="shortcut icon" href="css/grid.ico" />-->
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/picker.css">
-  <script src="js/jquery.js"></script> 
-  <script src="js/grid.js"></script>    
+  <link rel="stylesheet" href="css/input.css">
+  <script data-main="js/app" src="js/lib/require.js"></script>
 </head>
 <body>
   <div class="container">
     <div class="row">
       <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2">
+       
         <div class="row">
-          <div id="main" class="col-xs-8">
+         
+          <div class="col-xs-8">
             <div class="row marl">
               <div id="header" class="col-xs-12">
                 <h2 id="title">BackGrid</h2>
@@ -26,15 +28,11 @@
               </div>  
             </div>
             <div id="footer" class="row">
-              <div id="help" class="col-xs-12">
-                  <span>* Change [rows], [cols] and press [reset] to modify grid.</span><br>
-                  <span>* Choose mode: [line], [dot] or [auto-line].</span><br>
-                  <span>* Press [save] to save changes.</span><br>
-                  <span>* Line [size] and [scale] can be changed anytime.</span>
-              </div>  
+              <div id="help" class="col-xs-12"></div>  
             </div>
           </div>
-          <div id="tools" class="col-xs-4">
+          
+          <div class="col-xs-4">
             <div id="right-side" class="row">
               <div class="col-xs-12 block-lable">controls</div>
               <div class="block-itself">
@@ -49,6 +47,9 @@
                   <div class="col-xs-12">
                       <span id="reset" class="btn btn-default">reset</span>
                   </div>
+                  <div class="col-xs-12" id="background-wrap">
+                      <input type="checkbox" id="background-check"> background <span id="background-img"></span>
+                  </div>
                   <div class="col-xs-4 lbl">tool</div>    
                   <div id="tool-col" class="col-xs-8">
                     <select id="activeTool">
@@ -58,9 +59,7 @@
                     </select>
                   </div>
                   <div class="col-xs-4 lbl">color</div>    
-                  <div id="color" class="col-xs-7 color">
-                    <span id="color-span" class="colorSpot"></span>
-                  </div>
+                  <div id="color-span" class="col-xs-7"></div>
                   <div class="col-xs-12">
                       <span id="addLayer" class="btn btn-default tmar">save</span>
                   </div>
@@ -81,9 +80,16 @@
                   <div class="col-xs-12">
                     <canvas id="canvas">Not supported</canvas>  
                   </div>
-                  <div id="imgInfo" class="col-xs-12 lbl">img 80 x 120 [px]</div>
+                  <div id="image-size" class="col-xs-12 lbl">img 80 x 120 [px]</div>
                   <div class="col-xs-12">
-                    <span id="save" class="btn btn-default">download</span>  
+                    <span id="save" class="btn btn-default">
+                      download
+                    </span>  
+                  </div>
+                  <div class="col-xs-12">
+                    <span id="test" class="btn btn-default">
+                      live preview
+                    </span>  
                   </div>
               </div>
             </div>
@@ -94,34 +100,48 @@
       </div>
     </div>
   </div>
+  
+  <!--//////   dim background   //////-->
+  <div id="darkness"></div>
+  
+  <!--//////   test block   //////-->
+  <div id="test-block-wrap">
+    <div id="test-block">
+      <div id="test-close">&#10005;</div>
+      <img id="test-image">
+    </div>      
+  </div>  
     
-  <div id="greyIsh"></div>
-  <div id="divPickerHolder">
-    <div id="divPicker">
-        <div id="pickerWorkingSpace">
-            <div id="divPickerBG">
-                <img src="img/picker-bg.png" id="pickerBG" class="img-responsive" />
-                <span id="pointerBG"></span>
-            </div>
-            <div id="divPickerColor">
-                <img src="img/picker-color.png" id="pickerColor" />
-                <span id="pointerColor"></span>
-            </div>
+  <!--///////    color picker    ///////-->    
+  <div id="picker-wrap">
+    <div id="picker">
+      <div id="picker-sv-wrap">
+        <img src="img/picker-bg.png" id="picker-sv" class="img-responsive" />
+        <span id="picker-sv-pointer"></span>
+      </div>
+      <div id="picker-h-wrap">
+        <img src="img/picker-color.png" id="picker-h" />
+        <span id="picker-h-pointer"></span>
+      </div>
+      <div id="picker-controls-wrap">
+        <div class="btn" id="picker-ok">Ok</div>
+        <div id="picker-preview"></div>
+        <div id="picker-hash-wrap">
+          #<div id="picker-hash"></div>;
         </div>
-        <div class="clear"></div>
-        <div id="divPickerControls">
-            <div class="buttons">
-                <span class="btn btn-default" id="btnOk">Ok</span>
-            </div>
-            <div class="buttons">
-                <span id="colorSpot" class="colorSpot"></span>
-            </div>
-            <div class="buttons">
-                #<input type="text" class="colorHash" value="000000" />;
-            </div>
-            
-        </div>
+      </div>
     </div>
-  </div>     
+  </div> 
+  
+  <!-- input -->
+  <div id="input-wrap">
+    <div id="input">
+      <div title="Done" id="input-done">&#10003;</div>
+      <div class="brow" id="input-buttons">
+        <div id="input-backspace">&larr;</div>
+      </div>
+    </div>
+  </div>
+   
 </body>
 </html>
