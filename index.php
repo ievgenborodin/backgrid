@@ -97,20 +97,20 @@
           
         </div>
         
+         <!--//////   test block   //////-->
+          <div id="test-block-wrap">
+            <div id="test-block">
+              <div id="test-close">&#10005;</div>
+              <img id="test-image">
+            </div>      
+          </div> 
+        
       </div>
-    </div>
+    </div>  
   </div>
   
   <!--//////   dim background   //////-->
   <div id="darkness"></div>
-  
-  <!--//////   test block   //////-->
-  <div id="test-block-wrap">
-    <div id="test-block">
-      <div id="test-close">&#10005;</div>
-      <img id="test-image">
-    </div>      
-  </div>  
     
   <!--///////    color picker    ///////-->    
   <div id="picker-wrap">
