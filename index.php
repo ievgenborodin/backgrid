@@ -39,15 +39,15 @@
                   <div class="col-xs-6 lbl">rows</div>
                   <div class="col-xs-6 lbl">cols</div>
                   <div class="col-xs-6">
-                      <input type="text" id="rows" size="2" value="4">
+                      <div id="rows">4</div>
                   </div>
                   <div class="col-xs-6">
-                      <input type="text" id="cols" size="2" value="4">
+                      <div id="cols">4</div>
                   </div>
                   <div class="col-xs-12">
                       <span id="reset" class="btn btn-default">reset</span>
                   </div>
-                  <div class="col-xs-12" id="background-wrap">
+                  <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" id="background-wrap">
                       <input type="checkbox" id="background-check"> background <span id="background-img"></span>
                   </div>
                   <div class="col-xs-4 lbl">tool</div>    
@@ -55,11 +55,11 @@
                     <select id="activeTool">
                       <option value="line">line</option>    
                       <option value="dot">dot</option>
-                      <option value="autoline">autoline</option>
+                      <option value="autoline">auto</option>
                     </select>
                   </div>
-                  <div class="col-xs-4 lbl">color</div>    
-                  <div id="color-span" class="col-xs-7"></div>
+                  <div id="color-span-lbl" class="col-xs-3"></div>
+                  <div id="color-span"></div>
                   <div class="col-xs-12">
                       <span id="addLayer" class="btn btn-default tmar">save</span>
                   </div>
@@ -68,15 +68,13 @@
                   <div class="col-xs-12 block-lable">output file</div>    
                   <div id="sizeLabelVal" class="col-xs-6 lbl">size</div>    
                   <div class="col-xs-6">
-                    <select id="line-size"></select>
-                  <!--  <input id="line-size" type="range" min="1" max="16" step="1" value="1">-->
+                    <div id="line-size">2</div>
                   </div>
                   <div id="ampLabelVal" class="col-xs-6 lbl">scale</div>    
                   <div class="col-xs-6">
-                    <select id="line-amplifier"></select>
-                   <!-- <input id="line-amplifier" type="range" min="0" max="32" step="1" value="4">-->
+                    <div id="line-amplifier">3</div>
                   </div>
-                  <div class="col-xs-12 lbl tmar">preview</div>
+                  <div class="col-xs-12 lbl">preview</div>
                   <div class="col-xs-12">
                     <canvas id="canvas">Not supported</canvas>  
                   </div>

@@ -10,59 +10,51 @@ require.config({
 
 /* //////     MAIN    /////// */
 define(["jquery", "src/picker", "src/input", "src/ui"], function($, Picker, Input, ui) {
-    /* // vars // */
+    
    var picker = new Picker(),
-       
-    layers = [],
-    cols, rows, colSize, cells, color,
-    field = $('#field'),
-    fWidth = field.width(),
-    setBtn = $('#set'),
-    resetBtn = $('#reset'),
-    canvas = $('#canvas'),
-    context = canvas[0].getContext('2d'),
-    lineWidth = 1, 
-    amp = 4,
-    tool,
-    lineRound = true,
-    sizeVal = $('#sizeLabelVal'), sizing = false,
-    ampVal = $('#ampLabelVal'), amplify = false,
-    addLayerBtn = $('#addLayer'),
-    inputAmp = $('#line-amplifier'),    
-    inputSize = $('#line-size'),
-    darkness = $('#' + ui.darknessId),
-    actives = 0,
-    Layer = {
-      params: function(){
-        this.cells = [];
-        this.lines = [];
-        this.color = "#000000";
-        return this;
-      }
-    },
-    Line = function(i1, i2, color){
-      return {
+   tool, layers = [], lineWidth = 1, 
+   cols, rows, colSize, cells, color, amp = 4,
+   colsDiv = $('#cols'), rowsDiv = $('#rows'),
+   field = $('#field'),  fWidth = field.width(),
+   setBtn = $('#set'),    resetBtn = $('#reset'),
+   canvas = $('#canvas'),  context = canvas[0].getContext('2d'),    
+   addLayerBtn = $('#addLayer'),
+   inputAmp = $('#line-amplifier'),    
+   inputSize = $('#line-size'),
+   darkness = $('#' + ui.darknessId).css('height', window.innerHeight),
+   help = $('#help'),
+   activeTool = $('#' + ui.activeToolId),
+   imgSize = $('#' + ui.imageSizeId),
+   colorSpan = $('#' + ui.colorSpanId),   
+   backgroundCheck = $('#' + ui.backgroundCheckId),
+   backgroundImg = $('#' + ui.backgroundImgId),
+   input = new Input({
+      keys: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+   }),
+   background = {
+      on: false,
+      color: '#203'
+   },
+   Layer = {
+     params: function(){
+       this.cells = [];
+       this.lines = [];
+       this.color = "#000000";
+       return this;
+     }
+   },
+   Line = function(i1, i2, color){
+     return {
         i1: i1,
         i2: i2,
         color: color
-      }
-    },
-   
-    help = $('#help'),
-    activeTool = $('#' + ui.activeToolId),
-    imgSize = $('#' + ui.imageSizeId),
-    colorSpan = $('#' + ui.colorSpanId),   
-    background = {
-      on: false,
-      color: '#203'
-    },
-    backgroundCheck = $('#' + ui.backgroundCheckId),
-    backgroundImg = $('#' + ui.backgroundImgId);
-    
+     }
+   };
     
     /* set background */
     backgroundCheck.on('click', function(e){
         var tmp;
+        addLayer();
         if ($(this)[0].checked) {
             background.on = true; 
             tmp = 'inline-block';
@@ -74,14 +66,12 @@ define(["jquery", "src/picker", "src/input", "src/ui"], function($, Picker, Inpu
         renderPreview();
     });
     backgroundImg.on('click', function(e){
-        darkness.css('height', window.innerHeight)
-                .css('display', 'block');
+        darkness.css('display', 'block');
         picker.init($(this), onBackgroundChange);
     });
     
     colorSpan.on('click', function(e){
-        darkness.css('height', window.innerHeight)
-                .css('display', 'block');
+        darkness.css('display', 'block');
         picker.init($(this));
     });
     
@@ -89,6 +79,7 @@ define(["jquery", "src/picker", "src/input", "src/ui"], function($, Picker, Inpu
     setHelp("default");
     activeTool.change(function(){
       setHelp($(this).val());
+      addLayer();
     });
     
     /* set grid */
@@ -114,9 +105,18 @@ define(["jquery", "src/picker", "src/input", "src/ui"], function($, Picker, Inpu
         darkness.css('display', 'none');
         $('#test-block-wrap').css('display', 'none');
     });   
-    $('#line-amplifier').change(resetOutput);        
-    $('#line-size').change(resetOutput);             
-
+    inputAmp.on('click', function(e){
+        input.start($(this), resetOutput);
+    });
+    inputSize.on('click', function(e){
+        input.start($(this), resetOutput);
+    });             
+    colsDiv.on('click',function(e){
+        input.start($(this));
+    });
+    rowsDiv.on('click',function(e){
+        input.start($(this));
+    });
 
     
     function setHelp(value){
@@ -252,8 +252,7 @@ define(["jquery", "src/picker", "src/input", "src/ui"], function($, Picker, Inpu
       }); 
      }    
     function dotTool(cells, a){
-      var tmpx, tmpy, actives=0,
-          color = colorSpan.css('background-color');     
+      var tmpx, tmpy, color = colorSpan.css('background-color');     
       layers[layers.length-1].color = color;    
 
       /* sort cells */
@@ -307,14 +306,6 @@ define(["jquery", "src/picker", "src/input", "src/ui"], function($, Picker, Inpu
      };        
     function renderGrid(){
       var html = '', i = 0;
-      inputAmp.append($('<option></option>').val(0).html(0));
-      for (k=1;k<=32;k++){
-        inputAmp.append($('<option></option>').val(k).html(k));
-        inputSize.append($('<option></option>').val(k).html(k));
-      }  
-      inputAmp.val(3);
-      inputSize.val(2);
-
       for (var r=0; r<rows; r++){
         html+='<div class="row">';  
         for(var c=0; c<cols; c++){
@@ -336,8 +327,8 @@ define(["jquery", "src/picker", "src/input", "src/ui"], function($, Picker, Inpu
       layers.push(Object.create(Layer).params());
     };    
     function setGrid(){
-        cols = +$('#cols').val();
-        rows = +$('#rows').val();
+        cols = +colsDiv[0].innerHTML;
+        rows = +rowsDiv[0].innerHTML;
         colSize = (100 / cols).toPrecision(7) + '%';
         background.on = false;
         backgroundCheck[0].checked = false;
@@ -357,8 +348,8 @@ define(["jquery", "src/picker", "src/input", "src/ui"], function($, Picker, Inpu
      };      
     function resetOutput(){
       var tmpAmp, tmpW, tmpH;
-      amp = $('#line-amplifier').val();
-      lineWidth = $('#line-size').val();
+      amp = +inputAmp[0].innerHTML;
+      lineWidth = +inputSize[0].innerHTML;
       tmpAmp = (amp > 0) ? lineWidth * amp : lineWidth;
       tmpW = ((cols - 1) * tmpAmp);
       tmpH = ((rows - 1) * tmpAmp); 
