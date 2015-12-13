@@ -10,4 +10,4 @@ Scalable background pattern tool. Helps to draw a grid / tile images.
 ![Image2](/img/scr2.jpg)
 
 ## Link
-http://feverart.com/mygrid/
+http://ievgenborodin.com/apps/backgrid/
